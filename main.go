@@ -11,41 +11,50 @@ import (
 	"time"
 
 	"github.com/pkg/browser"
+	"github.com/spf13/cobra"
 )
 
 func main() {
-	var data string
+	cmd := &cobra.Command{
+		Use:     `jsonhero [flags] json`,
+		Example: `echo '{"foo": 0}' | jsonhero`,
+		Version: "1.0.0",
+		RunE:    run,
+	}
 
+	if err := cmd.Execute(); err != nil {
+		panic(err)
+	}
+}
+
+func run(cmd *cobra.Command, args []string) error {
+	var data string
 	if stats, err := os.Stdin.Stat(); err == nil && stats.Size() > 0 {
 		v, err := io.ReadAll(os.Stdin)
 
 		if err != nil {
-			fmt.Println(err)
-			return
+			return fmt.Errorf("failed to read stdin: %w", err)
 		}
 		data = string(v)
-	} else if len(os.Args) > 1 {
-		data = os.Args[len(os.Args)-1]
+	} else if len(args) > 1 {
+		data = args[0]
 	} else {
-		fmt.Println("no input")
-		return
+		return fmt.Errorf("no data provided")
 	}
 
 	var dest any
 	if err := json.Unmarshal([]byte(data), &dest); err != nil {
-		fmt.Println("invalid json")
-		return
+		return fmt.Errorf("invalid json")
 	}
 
 	url, err := createJsonhero(context.Background(), dest)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return fmt.Errorf("failed to create jsonhero: %w", err)
 	}
 	if err := openBrowser(url); err != nil {
-		fmt.Println(err)
-		return
+		return fmt.Errorf("failed to open browser: %w", err)
 	}
+	return nil
 }
 
 func createJsonhero(ctx context.Context, content any) (string, error) {
