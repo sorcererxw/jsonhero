@@ -1,0 +1,5 @@
+# Jsonhero CLI
+
+# License
+
+MIT
