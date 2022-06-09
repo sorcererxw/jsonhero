@@ -1,6 +1,6 @@
 # Jsonhero CLI
 
-Command-line tool to view JSON on jsonhero.io.
+Command-Line tool to view JSON on [jsonhero.io](https://jsonhero.io).
 
 ## Install
 
